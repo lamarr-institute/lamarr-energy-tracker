@@ -1,22 +1,30 @@
 """
 Main tracker module that wraps CodeCarbon functionality
 """
-from codecarbon import EmissionsTracker
+from codecarbon import OfflineEmissionsTracker
+import os
+from pathlib import Path
+import getpass
 
 class EnergyTracker:
     """A wrapper class for CodeCarbon's EmissionsTracker with simplified interface"""
     
-    def __init__(self, project_name=None, output_dir=None):
+    def __init__(self, project_name="default", output_dir=None):
         """
         Initialize the energy tracker
         
         Args:
             project_name (str, optional): Name of the project being tracked
-            output_dir (str, optional): Directory to save the emissions data
+            output_dir (str, optional): Directory to save the CodeCarbon logs
         """
-        self.tracker = EmissionsTracker(
-            project_name=project_name,
-            output_dir=output_dir
+        if output_dir is None:
+            output_dir = os.path.join(Path.home(), '.let')
+        os.makedirs(output_dir, exist_ok=True)
+        current_user = getpass.getuser()
+        hostname = os.uname().nodename
+        experiment_id = f"{project_name}___{current_user}___{hostname}"
+        self.tracker = OfflineEmissionsTracker(
+            experiment_id=experiment_id, output_dir=output_dir, log_level='error'
         )
         
     def __enter__(self):
@@ -32,11 +40,14 @@ class EnergyTracker:
         """Start tracking energy consumption"""
         self.tracker.start()
         
-    def stop(self):
+    def stop(self, print_summary=True):
         """Stop tracking and return the total energy consumed in kWh"""
-        return self.tracker.stop()
-        
-    @property
-    def emissions(self):
-        """Get the current CO2 emissions in kg"""
-        return self.tracker.emissions
+        result = self.tracker.stop()
+
+        if print_summary:
+            with open(self.tracker.output_file, 'r') as f:
+                lines = f.readlines()
+                if len(lines) > 1:
+                    last_line = lines[-1]
+                    print("Energy Consumption Summary:")
+                    print(last_line.strip())

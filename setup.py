@@ -29,4 +29,10 @@ setup(
     install_requires=[
         "codecarbon==3.0.8",
     ],
+    extras_require={
+        "test": [
+            "pytest>=7.0.0",
+            "pandas>=1.0.0",
+        ],
+    },
 )
