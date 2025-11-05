@@ -5,6 +5,7 @@ from codecarbon import OfflineEmissionsTracker
 import os
 from pathlib import Path
 import getpass
+import platform
 
 class EnergyTracker:
     """A wrapper class for CodeCarbon's EmissionsTracker with simplified interface"""
@@ -21,7 +22,7 @@ class EnergyTracker:
             output_dir = os.path.join(Path.home(), '.let')
         os.makedirs(output_dir, exist_ok=True)
         current_user = getpass.getuser()
-        hostname = os.uname().nodename
+        hostname = platform.node()
         experiment_id = f"{project_name}___{current_user}___{hostname}"
         self.tracker = OfflineEmissionsTracker(
             experiment_id=experiment_id, output_dir=output_dir, log_level='error'
@@ -45,9 +46,11 @@ class EnergyTracker:
         result = self.tracker.stop()
 
         if print_summary:
-            with open(self.tracker.output_file, 'r') as f:
+            with open(os.path.join(self.tracker._output_dir, self.tracker._output_file), 'r') as f:
                 lines = f.readlines()
                 if len(lines) > 1:
                     last_line = lines[-1]
                     print("Energy Consumption Summary:")
                     print(last_line.strip())
+
+        return result
