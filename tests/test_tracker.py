@@ -9,6 +9,7 @@ import getpass
 from lamarr_energy_tracker import EnergyTracker
 
 class TestEnergyTracker(unittest.TestCase):
+
     def setUp(self):
         """Create a temporary directory for test outputs"""
         self.temp_dir = tempfile.mkdtemp()
@@ -46,9 +47,10 @@ class TestEnergyTracker(unittest.TestCase):
         
         # Check if experiment_id contains all components
         experiment_id = df['experiment_id'].iloc[0]
-        self.assertIn(expected_user, experiment_id, "User not found in experiment_id")
-        self.assertIn(expected_host, experiment_id, "Hostname not found in experiment_id")
-        self.assertIn(self.default_project, experiment_id, "Project name not found in experiment_id")
+        proj, user, host = experiment_id.split("___")
+        self.assertEqual(expected_user, user, "User not found in experiment_id")
+        self.assertEqual(expected_host, host, "Hostname not found in experiment_id")
+        self.assertEqual(self.default_project, proj, "Project name not found in experiment_id")
 
     def test_custom_output_path(self):
         """Test if custom output path works correctly"""
@@ -60,6 +62,8 @@ class TestEnergyTracker(unittest.TestCase):
         
         emissions_file = custom_dir / "emissions.csv"
         self.assertTrue(emissions_file.exists(), "emissions.csv not created in custom directory")
+        os.remove(emissions_file)
+        os.rmdir(custom_dir)
 
     def test_stop_return_format(self):
         """Test if stop() returns properly formatted emissions data"""
