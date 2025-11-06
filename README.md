@@ -1,6 +1,6 @@
 # Lamarr Energy Tracker
 
-A simple wrapper around CodeCarbon for tracking and reporting energy consumption from Python.
+A simple wrapper around [CodeCarbon](https://mlco2.github.io/codecarbon/motivation.html) for tracking and reporting energy consumption from Python.
 
 ## Features
 
@@ -49,14 +49,15 @@ delete_results()
 ```
 
 While the tracker assumes deployment in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json).
+For more information on the methodology behind the resource tracking, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
 
 ## Collaborate
-In order to become truly resource-aware, we plan to assemble impact reports about the resource consumption of research being conducted at Lamarr Institute.
+In order to become truly resource-aware, we plan to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.
 Please send your `emissions.csv` files to [sebastian.buschjaeger@tu-dortmund.de](sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
-Feel free to add additional information (e.g., description of the project, link to the paper or repository). 
+Feel free to add additional information, such as a description of the project and a link to the paper or associated code repository. 
 
 ## Citing
-If you use this tool to report your energy consumption, you can link back to this repository and cite [CodeCarbon](https://mlco2.github.io/codecarbon), for example via the following bibtex entries:
+If you use this tool to report your energy consumption, please cite this repository and cite [CodeCarbon](https://mlco2.github.io/codecarbon), for example via the following bibtex entries:
 
 ```bibtex
 @software{lamarr_energy_tracker,
