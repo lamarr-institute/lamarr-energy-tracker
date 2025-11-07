@@ -28,6 +28,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "codecarbon==3.0.8",
+        "argparse"
     ],
     extras_require={
         "test": [

@@ -1,57 +1,20 @@
 """
 Main tracker module that wraps CodeCarbon functionality
 """
+import logging
 import os
 from pathlib import Path
 import getpass
 import platform
 
 from codecarbon import OfflineEmissionsTracker
+from codecarbon.external.logger import set_logger_level
 import pandas as pd
 
-
-def load_results(output_dir=None, project_name=None, user=None, hostname=None):
-    """Retrieves a summary of all stored results"""
-    if output_dir is None:
-        output_dir = os.path.join(Path.home(), '.let')
-    results = pd.read_csv(os.path.join(output_dir, 'emissions.csv'))
-    # map project_name, user and hostname to individual columns
-    for idx, field in enumerate(['project_name', 'user', 'hostname']):
-        results[field] = results['experiment_id'].apply(lambda x: x.split('___')[idx])
-    if project_name is not None:
-        results = results[results['project_name'] == project_name]
-    if user is not None:
-        results = results[results['user'] == user]
-    if hostname is not None:
-        results = results[results['hostname'] == hostname]
-    return results
-
-
-def print_paper_statement(output_dir=None, project_name=None, user=None, hostname=None):
-    """Prints a summary of all stored results"""
-    results = load_results(output_dir, project_name, user, hostname)
-    cc, hw, em, en, rate = format_summary(results)
-    print(f"Using {cc}, the energy consumption of running all experiments on an {hw} is estimated to {en}. This corresponds to estimated carbon emissions of {em} of CO2-equivalents, assuming a carbon intensity of {rate}" + r"~\cite{lamarr_energy_tracker,codecarbon}.")
-    
-    
-def format_summary(results):
-    cc = f"CodeCarbon {results['codecarbon_version'].iloc[0]}"
-    # get hardware info
-    assert pd.unique(results['cpu_model']).size == 1, "Multiple CPU models found in results"
-    assert pd.unique(results['gpu_model']).size == 1, "Multiple GPU models found in results"
-    hw = results['cpu_model'].iloc[0].split(' @ ')[0]
-    if not pd.isna(results['gpu_model'].iloc[0]):
-        hw = hw + f" and {results['gpu_model'].iloc[0]}"
-    # get emissions and energy
-    em = f"{results['emissions'].sum():5.3f} kg" if results['emissions'].sum() > 0.1 else f"{results['emissions'].sum()*1000:5.3f} g"
-    en = f"{results['energy_consumed'].sum():5.3f} kWh" if results['energy_consumed'].sum() > 0.1 else f"{results['energy_consumed'].sum()*1000:5.3f} Wh"
-    rate = f"{int(results['emissions'].sum()/results['energy_consumed'].sum()*1000)} gCO2/kWh"
-    return cc, hw, em, en, rate
-
+from lamarr_energy_tracker.print_paper_statement import format_summary, load_results, print_paper_statement
 
 def delete_results(output_dir=None):
     os.remove(os.path.join(output_dir, 'emissions.csv'))
-    
 
 class EnergyTracker:
     """A wrapper class for CodeCarbon's EmissionsTracker with simplified interface"""
@@ -71,8 +34,16 @@ class EnergyTracker:
         self.user = getpass.getuser()
         self.hostname = platform.node()
         experiment_id = f"{self.project_name}___{self.user}___{self.hostname}"
+
+        # Set the log_level here already otherwise we get stuff like 
+        # [codecarbon INFO @ 12:21:08] offline tracker init
+        # [codecarbon WARNING @ 12:21:08] Multiple instances of codecarbon are allowed to run at the same time.
+        set_logger_level(level="error")
+
+        # Additional, set the log_level=error here as well, otherwise this 
+        # instances overrides our previous level with "" (aka level="info")
         self.tracker = OfflineEmissionsTracker(
-            experiment_id=experiment_id, output_dir=output_dir, country_iso_code=country_iso_code, log_level='error'
+            experiment_id=experiment_id, output_dir=output_dir, country_iso_code=country_iso_code, log_level="error"
         )
         
     def __enter__(self):
@@ -111,9 +82,7 @@ class EnergyTracker:
         result = self.results.iloc[-1]
         return result
 
-
 if __name__ == "__main__":
-    
     import tempfile
     import shutil
     temp_dir = tempfile.mkdtemp()

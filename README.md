@@ -48,11 +48,18 @@ print_paper_statement()
 delete_results()
 ```
 
+You can also print the statement directly from the terminal:
+```python
+python -m lamarr_energy_tracker.print_paper_statement # Default arguments
+
+python -m lamarr_energy_tracker.print_paper_statement --output_dir DIR --project_name NAME --hostname HOST # For additional filtering
+```
+
 While the tracker assumes deployment in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json).
 For more information on the methodology behind the resource tracking, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
 
 ## Collaborate
-In order to become truly resource-aware, we plan to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.
+In order to become truly resource-aware, we hope to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.
 Please send your `emissions.csv` files to [sebastian.buschjaeger@tu-dortmund.de](sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
 Feel free to add additional information, such as a description of the project and a link to the paper or associated code repository. 
 
