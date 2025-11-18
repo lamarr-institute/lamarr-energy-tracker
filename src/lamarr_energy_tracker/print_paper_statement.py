@@ -20,7 +20,7 @@ def print_paper_statement(output_dir, project_name = None, user = None, hostname
     """Prints a summary of all stored results"""
     results = load_results(output_dir, project_name, user, hostname)
     cc, hw, em, en, rate = format_summary(results)
-    print(f"Using {cc}, the energy consumption of running all experiments on an {hw} is estimated to {en}. This corresponds to estimated carbon emissions of {em} of CO2-equivalents, assuming a carbon intensity of {rate}" + r"~\cite{lamarr_energy_tracker,codecarbon}.")
+    print(f"Using {cc}, the energy consumption of running all experiments on an {hw} is estimated to {en}. This corresponds to estimated carbon emissions of {em} of CO2-equivalents, assuming a carbon intensity of {rate}" + r"~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impact~\cite{ai_energy_validation}.")
     
 def format_summary(results):
     cc = f"CodeCarbon {results['codecarbon_version'].iloc[0]}"
