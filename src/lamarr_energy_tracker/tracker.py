@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import getpass
 import platform
+from typing import List, Optional
 
 from codecarbon import OfflineEmissionsTracker
 from codecarbon.external.logger import set_logger_level
@@ -19,13 +20,14 @@ def delete_results(output_dir=None):
 class EnergyTracker:
     """A wrapper class for CodeCarbon's EmissionsTracker with simplified interface"""
     
-    def __init__(self, project_name="default", country_iso_code="DEU", output_dir=None):
+    def __init__(self, project_name="default", country_iso_code="DEU", output_dir=None, cuda_devices:Optional[List] = None):
         """
         Initialize the energy tracker
         
         Args:
             project_name (str, optional): Name of the project being tracked
             output_dir (str, optional): Directory to save the CodeCarbon logs
+            track_cuda_devices (List, optional): List of cuda devices to track. If empty or None, will use CUDA_VISIBLE_DEVICES
         """
         self.project_name = project_name
         if output_dir is None:
@@ -35,6 +37,11 @@ class EnergyTracker:
         self.hostname = platform.node()
         experiment_id = f"{self.project_name}___{self.user}___{self.hostname}"
 
+        if not cuda_devices: 
+            if "CUDA_VISIBLE_DEVICES" in os.environ:
+                value = os.environ["CUDA_VISIBLE_DEVICES"]
+                cuda_devices = [d.strip() for d in value.split(",") if d.strip() != ""]
+
         # Set the log_level here already otherwise we get stuff like 
         # [codecarbon INFO @ 12:21:08] offline tracker init
         # [codecarbon WARNING @ 12:21:08] Multiple instances of codecarbon are allowed to run at the same time.
@@ -43,7 +50,7 @@ class EnergyTracker:
         # Additional, set the log_level=error here as well, otherwise this 
         # instances overrides our previous level with "" (aka level="info")
         self.tracker = OfflineEmissionsTracker(
-            experiment_id=experiment_id, output_dir=output_dir, country_iso_code=country_iso_code, log_level="error"
+            experiment_id=experiment_id, output_dir=output_dir, country_iso_code=country_iso_code, log_level="error", gpu_ids=cuda_devices
         )
         
     def __enter__(self):
