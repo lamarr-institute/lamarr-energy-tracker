@@ -20,13 +20,15 @@ def delete_results(output_dir=None):
 class EnergyTracker:
     """A wrapper class for CodeCarbon's EmissionsTracker with simplified interface"""
     
-    def __init__(self, project_name="default", country_iso_code="DEU", output_dir=None, cuda_devices:Optional[List] = None):
+    def __init__(self, project_name="default", country_iso_code="DEU", measure_power_secs=1, output_dir=None, cuda_devices:Optional[List] = None):
         """
         Initialize the energy tracker
         
         Args:
             project_name (str, optional): Name of the project being tracked
             output_dir (str, optional): Directory to save the CodeCarbon logs
+            country_iso_code (str, optional): ISO code of the country for emissions calculation
+            measure_power_secs (float, optional): Interval in float to measure power consumption
             track_cuda_devices (List, optional): List of cuda devices to track. If empty or None, will use CUDA_VISIBLE_DEVICES
         """
         self.project_name = project_name
@@ -50,7 +52,7 @@ class EnergyTracker:
         # Additional, set the log_level=error here as well, otherwise this 
         # instances overrides our previous level with "" (aka level="info")
         self.tracker = OfflineEmissionsTracker(
-            experiment_id=experiment_id, output_dir=output_dir, country_iso_code=country_iso_code, log_level="error", gpu_ids=cuda_devices
+            experiment_id=experiment_id, output_dir=output_dir, country_iso_code=country_iso_code, measure_power_secs=measure_power_secs, log_level="error", gpu_ids=cuda_devices
         )
         
     def __enter__(self):
