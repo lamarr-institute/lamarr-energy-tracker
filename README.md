@@ -1,14 +1,21 @@
-# Lamarr Energy Tracker
-
-A simple wrapper around [CodeCarbon](https://mlco2.github.io/codecarbon/motivation.html) for tracking and reporting energy consumption from Python.
+# LET - Lamarr Energy Tracker
+<div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+  <div>
+    <img src="logo.png" alt="Lamarr Energy Tracker logo" style="width:100px; height:auto; display:block;" />
+  </div>
+  <div style="flex:1; min-width:240px;">
+A simple wrapper around <a href="https://mlco2.github.io/codecarbon/motivation.html">CodeCarbon</a> for tracking and reporting local energy consumption from Python.
+  </div>
+</div>
 
 ## Features
-
-- 🧩 Simple extension to CodeCarbon
-- 👨‍💻 Only three lines of code to report on environmental impacts of your research
+- 🧩 Simple extension to CodeCarbon software
+- 👨‍💻 Three lines of code to report on environmental impacts of your research experiments
 - 💚 Help to make Lamarr Institute more resource-aware
 
 ## Installation
+
+As a Python library, you can simply install it by running
 
 ```bash
 pip install lamarr-energy-tracker
@@ -16,12 +23,17 @@ pip install lamarr-energy-tracker
 
 ## Usage
 
+LET should only be used for local setups without available energy monitoring.
+If you use the [Lamarr Cluster](https://gitlab.tu-dortmund.de/lamarr/lamarr-public/cluster), your resource consumption will be automatically tracked soon, so you do not need to run LET.
+The following gives an idea of how LET can be included in your Python code:
+
+
 ```python
 from lamarr_energy_tracker import EnergyTracker
 
 # Either use as a context manager
 with EnergyTracker(project_name="your_research_project") as tracker:
-    # Your code here
+    # Your resource-heavy code here
     pass
 
 # Or manually
@@ -57,8 +69,8 @@ python -m lamarr_energy_tracker.print_paper_statement # Default arguments
 python -m lamarr_energy_tracker.print_paper_statement --output_dir DIR --project_name NAME --hostname HOST # For additional filtering
 ```
 
-While the tracker assumes deployment in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json).
-For more information on the methodology behind the resource tracking, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
+While the tracker assumes code is executed in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json).
+For more information on the methodology behind the tracker, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
 
 ## Collaborate
 In order to become truly resource-aware, we hope to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.
@@ -66,7 +78,7 @@ Please send your `emissions.csv` files to [sebastian.buschjaeger@tu-dortmund.de]
 Feel free to add additional information, such as a description of the project and a link to the paper or associated code repository. 
 
 ## Citing
-If you use this tool to report your energy consumption, please cite the following literature, for example using the following bibtex entries:
+If you use this tool to report your energy consumption, please cite the following literature:
 
 ```bibtex
 @software{lamarr_energy_tracker,
