@@ -23,10 +23,9 @@ pip install lamarr-energy-tracker
 
 ## Usage
 
-LET should only be used for local setups without available energy monitoring.
-If you use the [Lamarr Cluster](https://gitlab.tu-dortmund.de/lamarr/lamarr-public/cluster), your resource consumption will be automatically tracked soon, so you do not need to run LET.
-The following gives an idea of how LET can be included in your Python code:
-
+LET should be used for custom compute setups (e.g., desktop, workstation, laptop).
+If you use the [Lamarr Cluster](https://gitlab.tu-dortmund.de/lamarr/lamarr-public/cluster), your resource consumption will be automatically tracked (more info soon), so you do not need to use LET.
+You can include LET in your Python code like this:
 
 ```python
 from lamarr_energy_tracker import EnergyTracker
@@ -44,11 +43,10 @@ tracker.stop()
 ```
 
 Once the tracker is stopped, it will print the energy consumption of your executed experiment as well as a summary statement that you can copy to your paper, describing the environmental impact of all your performed experiments for this project and hardware, for example:
-```
-Using CodeCarbon 3.0.8, the energy consumption of running all experiments on an Intel(R) Core(TM) i7-10610U CPU is estimated to 0.135 kWh.
+
+***Using CodeCarbon 3.0.8, the energy consumption of running all experiments on an Intel(R) Core(TM) i7-10610U CPU is estimated to 0.135 kWh.
 This corresponds to estimated carbon emissions of 0.051 kg of CO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}.
-Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impact~\cite{ai_energy_validation}.
-```
+Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.***
 
 Per default, the tracker stores data about tracked resource consumption in a central `emissions.csv` file, located in `~/.let/`. You can also provide a different `output_dir` or access the tracking results as follows (use arguments to only investigate specific projects):
 ```python
@@ -63,14 +61,32 @@ delete_results()
 ```
 
 You can also print the statement directly from the terminal:
-```python
+```bash
 python -m lamarr_energy_tracker.print_paper_statement # Default arguments
 
 python -m lamarr_energy_tracker.print_paper_statement --output_dir DIR --project_name NAME --hostname HOST # For additional filtering
 ```
 
-While the tracker assumes code is executed in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json).
-For more information on the methodology behind the tracker, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
+## Assumptions and Estimation Errors
+As mentioned in the impact statement above, the information obtained by CodeCarbon and LET are mere estimates of the [ground-truth energy consumption](https://arxiv.org/abs/2509.22092).
+The tracking works especially well for NVIDIA GPUs (via NVML) and Linux setups, however dynamic CPU profiling with RAPL requires to run all code with `sudo`.
+If you want to run code without `sudo`, you can also run our [RAPL access rights script](./scripts/rapl_access.sh) before executing your code.
+
+While the tracker assumes that all code is executed in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json), among some other arguments. For more information on the methodology and shortcomings of the tracker, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
+
+If you use some other energy estimation approach, such as the static [Machine Learning CO2 Impact Calculator](https://mlco2.github.io/impact/) or custom profiling software like [jetson-stats](https://github.com/rbonghi/jetson_stats) (for NVIDIA Jetson [Thor, Orin, Xavier, Nano, TX] series), you can also use LET to print out a custom impact statement, based on the provided `methodology`, `hardware` and `energy consumption`:
+
+```python
+# from command-line
+python -m lamarr_energy_tracker.print_paper_statement --methodology "the CO2 Impact Calculator" --hardware "NVIDIA GTX 1080 GPU" --consumed_energy 3.2
+
+# from Python
+from lamarr_energy_tracker import print_custom_paper_statement
+print_custom_paper_statement(methodology="the CO2 Impact Calculator", hardware="NVIDIA GTX 1080 GPU", consumed_energy=3.2):
+
+# outputs:
+# Using the CO2 Impact Calculator, the energy consumption of running all experiments on an NVIDIA GTX 1080 GPU is estimated to 3.200 kWh.This corresponds to estimated carbon emissions of 1.216 kgCO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.
+```
 
 ## Collaborate
 In order to become truly resource-aware, we hope to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.

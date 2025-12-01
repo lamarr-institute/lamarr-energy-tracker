@@ -74,7 +74,7 @@ class EnergyTracker:
         result = self.last_result
 
         if print_summary:
-            _, _, _, en, _ = format_summary(pd.DataFrame([result]))
+            _, _, en, _ = format_summary(pd.DataFrame([result]))
             print(f"\nTracker stopped - this experiment consumed {en}.\n")
             print_paper_statement(output_dir=self.tracker._output_dir, project_name=self.project_name, user=self.user, hostname=self.hostname)
         return result['energy_consumed']

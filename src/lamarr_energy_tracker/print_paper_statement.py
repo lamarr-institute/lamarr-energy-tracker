@@ -16,11 +16,27 @@ def load_results(output_dir = os.path.join(Path.home(), '.let'), project_name = 
         results = results[results['hostname'] == hostname]
     return results
 
-def print_paper_statement(output_dir, project_name = None, user = None, hostname = None):
+def print_paper_statement(output_dir, project_name=None, user=None, hostname=None):
     """Prints a summary of all stored results"""
     results = load_results(output_dir, project_name, user, hostname)
-    cc, hw, em, en, rate = format_summary(results)
-    print(f"Using {cc}, the energy consumption of running all experiments on an {hw} is estimated to {en}. This corresponds to estimated carbon emissions of {em} of CO2-equivalents, assuming a carbon intensity of {rate}" + r"~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impact~\cite{ai_energy_validation}.")
+    cc, hw, en, rate = format_summary(results)
+    energy, energy_unit = en.split(" ")
+    print_custom_paper_statement(cc, hw, float(energy), energy_unit, rate)
+
+def print_custom_paper_statement(methodology, hardware, consumed_energy, energy_unit="kWh", carbon_intensity=380):
+    emissions = carbon_intensity * consumed_energy
+    if energy_unit == "Wh":
+        emissions = emissions / 1000  # convert Wh to kWh
+    if emissions >= 10:
+        emissions = emissions / 1000
+        emissions_unit = "kgCO2-equivalents"
+    else:
+        emissions_unit = "gCO2-equivalents"
+    output = f"Using {methodology}, the energy consumption of running all experiments on an {hardware} is estimated to {consumed_energy:5.3f} {energy_unit}." \
+          + f"This corresponds to estimated carbon emissions of {emissions:5.3f} {emissions_unit}, assuming a carbon intensity of {carbon_intensity} gCO2/kWh" \
+          + r"~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}."
+    print("\n" + output + "\n")
+    return output
     
 def format_summary(results):
     cc = f"CodeCarbon {results['codecarbon_version'].iloc[0]}"
@@ -31,38 +47,24 @@ def format_summary(results):
     if not pd.isna(results['gpu_model'].iloc[0]):
         hw = hw + f" and {results['gpu_model'].iloc[0]}"
     # get emissions and energy
-    em = f"{results['emissions'].sum():5.3f} kg" if results['emissions'].sum() > 0.1 else f"{results['emissions'].sum()*1000:5.3f} g"
     en = f"{results['energy_consumed'].sum():5.3f} kWh" if results['energy_consumed'].sum() > 0.1 else f"{results['energy_consumed'].sum()*1000:5.3f} Wh"
-    rate = f"{int(results['emissions'].sum()/results['energy_consumed'].sum()*1000)} gCO2/kWh"
-    return cc, hw, em, en, rate
+    rate = int(results['emissions'].sum()/results['energy_consumed'].sum()*1000) # gCO2/kWh
+    return cc, hw, en, rate
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run foo.bar")
+    parser = argparse.ArgumentParser(description="Print a paper statement summarizing energy and carbon emissions of tracked experiments. You can either use logs from the tracker, or provide custom information (pass values for methodology, hardware, and energy).")
 
-    parser.add_argument(
-        "--output_dir",
-        type=str,
-        default=os.path.join(Path.home(), ".let"),
-        help="Path to the output directory (default: ~/.let)"
-    )
-    parser.add_argument(
-        "--project_name",
-        type=str,
-        default=None,
-        help="Name of the project"
-    )
-    parser.add_argument(
-        "--user",
-        type=str,
-        default=None,
-        help="User name"
-    )
-    parser.add_argument(
-        "--hostname",
-        type=str,
-        default=None,
-        help="Hostname"
-    )
+    parser.add_argument("--output_dir", type=str, default=os.path.join(Path.home(), ".let"), help="Path to the output directory (default: ~/.let)")
+    parser.add_argument("--project_name", type=str, default=None, help="Name of the project")
+    parser.add_argument("--user", type=str, default=None, help="User name")
+    parser.add_argument("--hostname", type=str, default=None, help="Hostname")
+    parser.add_argument("--methodology", type=str, default=None, help="Methodology for energy estimation (e.g., CodeCarbon 3.0.8 or ML Impact Calculator)")
+    parser.add_argument("--hardware", type=str, default=None, help="Information on experiment hardware (e.g., CPU or GPU type)")
+    parser.add_argument("--consumed_energy", type=float, default=None, help="Information on consumed energy (in kWh)")
+    parser.add_argument("--carbon_intensity", type=int, default=380, help="Information on carbon intensity (in gCO2/kWh)")
 
     args = parser.parse_args()
-    print_paper_statement(args.output_dir, args.project_name, args.user, args.hostname)
+    if args.methodology is not None and args.hardware is not None and args.consumed_energy is not None:
+        print_custom_paper_statement(args.methodology, args.hardware, args.consumed_energy, carbon_intensity=args.carbon_intensity)
+    else:
+        print_paper_statement(args.output_dir, args.project_name, args.user, args.hostname)

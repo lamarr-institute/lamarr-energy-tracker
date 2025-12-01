@@ -1,3 +1,4 @@
 __pycache__
 emissions.csv
 *.egg-info
+deploy.sh
