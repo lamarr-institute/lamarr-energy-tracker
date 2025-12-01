@@ -93,7 +93,7 @@ In order to become truly resource-aware, we hope to assemble impact reports abou
 Please send your `emissions.csv` files to [sebastian.buschjaeger@tu-dortmund.de](sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
 Feel free to add additional information, such as a description of the project and a link to the paper or associated code repository. 
 
-<img src="gears.png" alt="Gears icon" style="width:80%;" />
+<img src="gears.png" alt="Gears icon" style="width:50%;" />
 
 ## Citing
 If you use this tool to report your energy consumption, please cite the following literature:
