@@ -11,9 +11,10 @@ A simple wrapper around <a href="https://mlco2.github.io/codecarbon/motivation.h
 ## Features
 - 🧩 Simple extension to CodeCarbon software
 - 👨‍💻 Three lines of code to report on environmental impacts of your research experiments
+- 📈 Allows to perform resource-versus-quality comparisons
 - 💚 Help to make Lamarr Institute more resource-aware
 
-## Installation
+## 💻 Installation
 
 As a Python library, you can simply install it by running
 
@@ -21,11 +22,11 @@ As a Python library, you can simply install it by running
 pip install lamarr-energy-tracker
 ```
 
-## Usage
+## ⚡ Usage
 
 LET should be used for custom compute setups (e.g., desktop, workstation, laptop).
 If you use the [Lamarr Cluster](https://gitlab.tu-dortmund.de/lamarr/lamarr-public/cluster), your resource consumption will be automatically tracked (more info soon), so you do not need to use LET.
-You can include LET in your Python code like this:
+You can integrate LET in your Python code like this:
 
 ```python
 from lamarr_energy_tracker import EnergyTracker
@@ -42,13 +43,14 @@ tracker.start()
 tracker.stop()
 ```
 
-Once the tracker is stopped, it will print the energy consumption of your executed experiment as well as a summary statement that you can copy to your paper, describing the environmental impact of all your performed experiments for this project and hardware, for example:
+Once stopped, the tracker will print the energy consumption of your experiment as well as a summary statement that you can copy into your paper, describing the environmental impact of all your performed experiments for the given project and hardware:
 
 ***Using CodeCarbon 3.0.8, the energy consumption of running all experiments on an Intel(R) Core(TM) i7-10610U CPU is estimated to 0.135 kWh.
 This corresponds to estimated carbon emissions of 0.051 kg of CO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}.
 Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.***
 
-Per default, the tracker stores data about tracked resource consumption in a central `emissions.csv` file, located in `~/.let/`. You can also provide a different `output_dir` or access the tracking results as follows (use arguments to only investigate specific projects):
+Per default, the tracker stores data about tracked resource consumption in a central `emissions.csv` file, located in `~/.let/`.
+You can provide a different `output_dir` or access the tracking results as follows (use arguments to only investigate specific projects):
 ```python
 from lamarr_energy_tracker import load_summary, print_paper_statement, delete_results
 
@@ -67,7 +69,7 @@ python -m lamarr_energy_tracker.print_paper_statement # Default arguments
 python -m lamarr_energy_tracker.print_paper_statement --output_dir DIR --project_name NAME --hostname HOST # For additional filtering
 ```
 
-## Assumptions and Estimation Errors
+## ❓ Assumptions and Estimation Errors
 As mentioned in the impact statement above, the information obtained by CodeCarbon and LET are mere estimates of the [ground-truth energy consumption](https://arxiv.org/abs/2509.22092).
 The tracking works especially well for NVIDIA GPUs (via NVML) and Linux setups, however dynamic CPU profiling with RAPL requires to run all code with `sudo`.
 If you want to run code without `sudo`, you can also run our [RAPL access rights script](./scripts/rapl_access.sh) before executing your code.
@@ -88,14 +90,21 @@ print_custom_paper_statement(methodology="the CO2 Impact Calculator", hardware="
 # Using the CO2 Impact Calculator, the energy consumption of running all experiments on an NVIDIA GTX 1080 GPU is estimated to 3.200 kWh.This corresponds to estimated carbon emissions of 1.216 kgCO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.
 ```
 
-## Collaborate
+## 💡 Multi-Dimensional Model Performance
+You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.
+For that, you can for example integrate LET / CodeCarbon with [MLflow](https://mlflow.org/) and the [STREP framework](https://github.com/raphischer/strep), allowing you to assemble and explore performance results via csv files---examplary code can be found in the ["Ground-Truthing AI Energy Consumption" repository](https://github.com/raphischer/ai-energy-validation).
+If you need a co-author, struggle to perform these evaluations, or want an expert opinion on your approach, feel free to reach out to [Raphael](raphael.fischer@tu-dortmund.de).
+
+<img src="strep_tabulus.png" alt="STREP TABULUS" style="width:50%;" />
+
+## 🤝 Collaborate
 In order to become truly resource-aware, we hope to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.
-Please send your `emissions.csv` files to [sebastian.buschjaeger@tu-dortmund.de](sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
+Please send your `emissions.csv` files to [Sebastian](sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
 Feel free to add additional information, such as a description of the project and a link to the paper or associated code repository. 
 
 <img src="gears.png" alt="Gears icon" style="width:50%;" />
 
-## Citing
+## 📝 Citing
 If you use this tool to report your energy consumption, please cite the following literature:
 
 ```bibtex
