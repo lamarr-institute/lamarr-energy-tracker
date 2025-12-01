@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="lamarr-energy-tracker",
-    version="0.1.0",
+    version="0.1.1",
     author="Resource-aware ML Research Team @ Lamarr Institute",
     author_email="sebastian.buschjaeger@tu-dortmund.de",
     description="A CodeCarbon wrapper for tracking and reporting energy consumption of ML experiments",
