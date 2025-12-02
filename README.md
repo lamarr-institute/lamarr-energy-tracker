@@ -93,13 +93,13 @@ print_custom_paper_statement(methodology="the CO2 Impact Calculator", hardware="
 ## 💡 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.
 For that, you can for example integrate LET / CodeCarbon with [MLflow](https://mlflow.org/) and the [STREP framework](https://github.com/raphischer/strep), allowing you to assemble and explore performance results via csv files---examplary code can be found in the ["Ground-Truthing AI Energy Consumption" repository](https://github.com/raphischer/ai-energy-validation).
-If you need a co-author, struggle to perform these evaluations, or want an expert opinion on your approach, feel free to reach out to [Raphael](raphael.fischer@tu-dortmund.de).
+If you need a co-author, struggle to perform these evaluations, or want an expert opinion on your approach, feel free to reach out to [Raphael](mailto:raphael.fischer@tu-dortmund.de).
 
 <img src="strep_tabulus.png" alt="STREP TABULUS" style="width:50%;" />
 
 ## 🤝 Collaborate
 In order to become truly resource-aware, we hope to assemble impact reports about the resource consumption of research projects being conducted at Lamarr Institute.
-Please send your `emissions.csv` files to [Sebastian](sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
+Please send your `emissions.csv` files to [Sebastian](mailto:sebastian.buschjaeger@tu-dortmund.de), such that we can include your experiments in our reports.
 Feel free to add additional information, such as a description of the project and a link to the paper or associated code repository. 
 
 <img src="gears.png" alt="Gears icon" style="width:50%;" />
