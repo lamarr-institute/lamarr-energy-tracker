@@ -90,6 +90,8 @@ print_custom_paper_statement(methodology="the CO2 Impact Calculator", hardware="
 # Using the CO2 Impact Calculator, the energy consumption of running all experiments on an NVIDIA GTX 1080 GPU is estimated to 3.200 kWh.This corresponds to estimated carbon emissions of 1.216 kgCO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.
 ```
 
+Finally, the comparisons printed in each statement are distilled from [How Bad Are Bananas? The Carbon Footprint of Everything by Mike Berners-Lee](https://greystonebooks.com/products/how-bad-are-bananas). They help gaining a better intuition for carbon intensity and can be funny, but please do not take them at face value. These numbers are very subjective and (to some degree) debatable.   
+
 ## 💡 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.
 For that, you can for example integrate LET / CodeCarbon with [MLflow](https://mlflow.org/) and the [STREP framework](https://github.com/raphischer/strep), allowing you to assemble and explore performance results via csv files---examplary code can be found in the ["Ground-Truthing AI Energy Consumption" repository](https://github.com/raphischer/ai-energy-validation).

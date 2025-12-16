@@ -9,7 +9,7 @@ import getpass
 from io import StringIO
 import sys
 from lamarr_energy_tracker import EnergyTracker
-from lamarr_energy_tracker.print_paper_statement import print_custom_paper_statement
+from lamarr_energy_tracker.print_paper_statement import emission_comparisons, print_custom_paper_statement
 
 class TestEnergyTracker(unittest.TestCase):
 
@@ -122,6 +122,35 @@ class TestPaperStatementOutput(unittest.TestCase):
         output = self._capture_statement_output("CodeCarbon 3.0.8", "Intel CPU", 0.05)
         self.assertIn(r"\cite{lamarr_energy_tracker,codecarbon}", output, "Missing LaTeX citation for lamarr_energy_tracker and codecarbon")
         self.assertIn(r"\cite{ai_energy_validation}", output, "Missing LaTeX citation for ai_energy_validation")
+    
+    def test_comparison_output(self):
+        """Test that proper comparisonst are returned"""
+        output = emission_comparisons(0)
+        self.assertTrue(output is None or len(output) == 0, "There where emission_comparisons found for 0g of CO2e, thats not possible")
+
+        output = emission_comparisons(1)
+        self.assertTrue(len(output) >= 1, "There where no emission_comparisons found for 1g of CO2e, thats not possible")
+        print(f"For comparison, this is {output[0]}. Comparisons are based on ``How bad are bananas? The Carbon Footprint of everything'' by Mike Berners-Lee. Greystone Books 2011.")
+
+        output = emission_comparisons(10)
+        self.assertTrue(len(output) >= 1, "There where no emission_comparisons found for 10g of CO2e, thats not possible")
+        print(f"For comparison, this is {output[0]}. Comparisons are based on ``How bad are bananas? The Carbon Footprint of everything'' by Mike Berners-Lee. Greystone Books 2011.")
+
+        output = emission_comparisons(100)
+        self.assertTrue(len(output) >= 1, "There where no emission_comparisons found for 100g of CO2e, thats not possible")
+        print(f"For comparison, this is {output[0]}. Comparisons are based on ``How bad are bananas? The Carbon Footprint of everything'' by Mike Berners-Lee. Greystone Books 2011.")
+
+        output = emission_comparisons(1_000)
+        self.assertTrue(len(output) >= 1, "There where no emission_comparisons found for 1kg of CO2e, thats not possible")
+        print(f"For comparison, this is {output[0]}. Comparisons are based on ``How bad are bananas? The Carbon Footprint of everything'' by Mike Berners-Lee. Greystone Books 2011.")
+
+        output = emission_comparisons(10_000)
+        self.assertTrue(len(output) >= 1, "There where no emission_comparisons found for 10kg of CO2e, thats not possible")
+        print(f"For comparison, this is {output[0]}. Comparisons are based on ``How bad are bananas? The Carbon Footprint of everything'' by Mike Berners-Lee. Greystone Books 2011.")
+
+        output = emission_comparisons(100_000)
+        self.assertTrue(len(output) >= 1, "There where no emission_comparisons found for 100kg of CO2e, thats not possible")
+        print(f"For comparison, this is {output[0]}. Comparisons are based on ``How bad are bananas? The Carbon Footprint of everything'' by Mike Berners-Lee. Greystone Books 2011.")
 
 if __name__ == '__main__':
     unittest.main()
