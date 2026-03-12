@@ -1,100 +1,67 @@
-import argparse
-import threading
-import time
-import csv
 from datetime import datetime
 import requests
-import statistics
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
 
-class SocketTracker:
-    def __init__(self, ip: str, interval: int = 10, agg_window: str = 'minute', output_file: str = "power_log_{ip}.csv"):
-        """
-        Initialize the tracker.
-        :param ip: IP address of the Tasmota socket
-        :param interval: polling interval in seconds
-        :param agg_window: aggregation window (writing a summary line for every {minute | hour | day})
-        :param output_file: path to CSV file for windowed summaries
-        """
-        self.ip = ip
-        self.interval = interval
-        self.agg_window = agg_window
-        self.output_file = output_file.format(ip=ip.replace('.', '-'))
+TSM_FMT = "%Y-%m-%dT%H:%M:%S"
 
-        self._stop_event = threading.Event()
-        self._thread = threading.Thread(target=self._run, daemon=True)
-
-        # internal storage for measurements within current aggregation window
-        self.measurements = []
-        self.current_window = getattr(datetime.now(), self.agg_window)
-
-        # start background thread immediately
-        self._thread.start()
-        print(f"Started tracking socket {self.ip} every {self.interval}s.")
-
-    def _get_power(self) -> float:
-        """Query the Tasmota device and return current power draw in watts."""
-        url = f"http://{self.ip}/cm?cmnd=Status%208"
-        try:
-            r = requests.get(url, timeout=5)
+def send_tasmota_query(ip, cmd):
+    url = f"http://{ip}/cm?cmnd={cmd}"
+    try:
+        r = requests.get(url, timeout=5)
+        if cmd == 'Status%208':
             data = r.json()
-            return float(data["StatusSNS"]["ENERGY"]["Power"])
-        except Exception as e:
-            print(f"[{self.ip}] Error reading power: {e}")
-            return None
+            results = {
+                'energy_total': data["StatusSNS"]["ENERGY"]["Total"] * 3600, # Wh to Ws
+                'start_time': data["StatusSNS"]["ENERGY"]["TotalStartTime"],
+                'current_time': data["StatusSNS"]["Time"]
+            }
+            results['elapsed_time'] = (datetime.strptime(results['current_time'], TSM_FMT) - datetime.strptime(results['start_time'], TSM_FMT)).total_seconds()
+            return results
+    except Exception as e:
+        print(f"[{ip} {cmd}] Error reading power: {e}")
+        return None
+    
+def tasmota_start(ip):
+    send_tasmota_query(ip, 'EnergyRes%205') # five decimals for energy report
+    results = send_tasmota_query(ip, 'Status%208')
+    send_tasmota_query(ip, 'EnergyTotal%200') # reset counter
+    return results
 
-    def _write_summary(self):
-        """Compute min/median/max/mean/count and append to CSV."""
-        
-        if not self.measurements:
-            print(f"[{self.ip}] No data collected this {self.current_window}.")
+def tasmota_stop(ip):
+    send_tasmota_query(ip, 'EnergyRes%205') # five decimals for energy report
+    return send_tasmota_query(ip, 'Status%208')
+
+class A1T_Server(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+
+        ip, cmd = self.path[1:].split('_')
+        print(ip, cmd)
+
+        if cmd == "start":
+            response = tasmota_start(ip)
+
+        elif cmd == "stop":
+            response = tasmota_stop(ip)
+
+        else:
+            self.send_response(404)
+            self.end_headers()
             return
         
-        values = [v for v in self.measurements if v is not None]
-        
-        summary = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "ip": self.ip,
-            "min": min(values),
-            "median": statistics.median(values),
-            "max": max(values),
-            "mean": statistics.mean(values),
-            "count": len(values)
-        }
+        print(response)
 
-        # write header once if file doesn’t exist yet 
-        try:
-            with open(self.output_file, 'x', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=summary.keys())
-                writer.writeheader()
-        except FileExistsError:
-            pass
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(response).encode())
 
-        with open(self.output_file, 'a', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=summary.keys())
-            writer.writerow(summary)
+    def log_message(self, *args):  # silence logging
+        return
 
-        print(f"[{self.ip}] Wrote {self.agg_window}ly summary → {self.output_file}")
 
-    def _run(self):
-       """Thread loop — periodically poll the socket and handle hourly summaries."""
-       while not self._stop_event.is_set():
-           now_window = getattr(datetime.now(), self.agg_window)
-
-           # Check if we’ve crossed into a new hour → write summary & reset buffer.
-           if now_window != self.current_window:
-               self._write_summary()
-               self.measurements.clear()
-               self.current_window = now_window
-
-           value = self._get_power()
-           if value is not None:
-               print(f"[{self.ip}] Power={value:.2f}W")
-               self.measurements.append(value)
-
-           time.sleep(self.interval)
-
-    def stop(self):
-       """Gracefully stop tracking."""
-       print(f"Stopping tracker for {self.ip}...")
-       self._stop_event.set()
-       self._thread.join(timeout=5)
+if __name__ == "__main__":
+    HOST, PORT = '0.0.0.0', 8000
+    print(f"Serving on {HOST}:{PORT}")
+    HTTPServer((HOST, PORT), A1T_Server).serve_forever()
