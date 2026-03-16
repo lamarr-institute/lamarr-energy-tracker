@@ -17,11 +17,11 @@ def send_tasmota_query(ip, cmd):
         if cmd == 'Status%208':
             data = r.json()
             results = {
-                'energy_total': data["StatusSNS"]["ENERGY"]["Total"] * 3600, # Wh to Ws
+                'energy_consumed': data["StatusSNS"]["ENERGY"]["Total"] * 3600, # Wh to Ws
                 'start_time': data["StatusSNS"]["ENERGY"]["TotalStartTime"],
-                'current_time': data["StatusSNS"]["Time"]
+                'timestamp': data["StatusSNS"]["Time"]
             }
-            results['elapsed_time'] = (datetime.strptime(results['current_time'], GT_FMT) - datetime.strptime(results['start_time'], GT_FMT)).total_seconds()
+            results['duration'] = (datetime.strptime(results['timestamp'], GT_FMT) - datetime.strptime(results['start_time'], GT_FMT)).total_seconds()
             return results
     except Exception as e:
         print(f"[{ip} {cmd}] Error reading power: {e}")
@@ -36,7 +36,7 @@ def tasmota_start(ip):
     send_tasmota_query(ip, 'EnergyTotal%200')
     # update start time
     results2 = send_tasmota_query(ip, 'Status%208')
-    results['current_time'] = results2['current_time']
+    results['timestamp'] = results2['timestamp']
     return results
 
 def tasmota_stop(ip):
@@ -138,7 +138,7 @@ class GroundTruthTracker:
             response.raise_for_status()
             results = response.json()
             results['start_time'] = datetime.strptime(results['start_time'], GT_FMT)
-            results['current_time'] = datetime.strptime(results['current_time'], GT_FMT)
+            results['timestamp'] = datetime.strptime(results['timestamp'], GT_FMT)
             return results
         except Exception as e:
             raise RuntimeError(f"Command '{cmd}' failed: {e}")
@@ -167,14 +167,19 @@ class GroundTruthTracker:
     def start(self):
         """Start tracking for this host"""
         results = GroundTruthTracker.send_command(self.server_host, "start", self.server_port)
-        print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['current_time'], GT_FMT)}, after {results['elapsed_time']/3600:7.2f} hours and {results['energy_total']/3.6e6:7.2f} kWh of tracking!")
+        print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']/3.6e6:7.2f} kWh of tracking!")
         return results
 
     def stop(self):
         """Stop tracking for this host"""
         results = GroundTruthTracker.send_command(self.server_host, "stop", self.server_port)
-        print(f"[GroundTruthTracker] Tracking after {results['elapsed_time']/60:7.2f} minutes standing at {results['energy_total']:12.5f} Wattseconds!")
+        print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} Wattseconds!")
+        results['tracking_mode'] = 'groundtruth'
         return results
+    
+
+
+    # timestamp,project_name,run_id,experiment_id,duration,emissions,emissions_rate,cpu_power,gpu_power,ram_power,cpu_energy,gpu_energy,ram_energy,energy_consumed,water_consumed,country_name,country_iso_code,region,cloud_provider,cloud_region,os,python_version,codecarbon_version,cpu_count,cpu_model,gpu_count,gpu_model,longitude,latitude,ram_total_size,tracking_mode,on_cloud,pue,wue
 
 
 if __name__ == "__main__":

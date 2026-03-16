@@ -76,7 +76,7 @@ class EnergyTracker:
             _, _, en, _ = format_summary(pd.DataFrame([result]))
             print(f"\nTracker stopped - this experiment consumed {en}.\n")
             print_paper_statement(output_dir=self.tracker._output_dir, project_name=self.project_name, user=self.user, hostname=self.hostname)
-        return result['energy_consumed']
+        return result['energy_consumed'], result['duration']
     
     @property
     def results(self):
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     tracker.start()
     total = sum(i * i for i in range(10000))
     # Simulate some computation
-    energy_used = tracker.stop()
-    print(f"Energy consumed (explicit): {energy_used} kWh")
+    energy_used, duration = tracker.stop()
+    print(f"Energy consumed (explicit): {energy_used} kWh over {duration} seconds")
 
     shutil.rmtree(temp_dir)

@@ -74,12 +74,16 @@ class TestEnergyTracker(unittest.TestCase):
         tracker.start()
         # Do some computation to ensure measurable energy consumption
         _ = [i**2 for i in range(10000)]
-        emissions = tracker.stop()
+        energy, duration = tracker.stop()
         
-        # Check if emissions is a float
-        self.assertIsInstance(emissions, float, "Emissions should be a float")
-        # Check if emissions is non-negative
-        self.assertGreaterEqual(emissions, 0, "Emissions should be non-negative")
+        # Check if energy is a float
+        self.assertIsInstance(energy, float, "Energy should be a float")
+        # Check if energy is non-negative
+        self.assertGreaterEqual(energy, 0, "Energy should be non-negative")
+        # Check if duration is a float
+        self.assertIsInstance(duration, float, "Duration should be a float")
+        # Check if duration is non-negative
+        self.assertGreaterEqual(duration, 0, "Duration should be non-negative")
 
 
 class TestPaperStatementOutput(unittest.TestCase):
