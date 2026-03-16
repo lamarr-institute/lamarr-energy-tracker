@@ -11,8 +11,9 @@ A simple wrapper around <a href="https://mlco2.github.io/codecarbon/motivation.h
 ## Features
 - 🧩 Simple extension to CodeCarbon software
 - 👨‍💻 Three lines of code to report on environmental impacts of your research experiments
-- 📈 Allows to perform resource-versus-quality comparisons
-- 💚 Help to make Lamarr Institute more resource-aware
+- 🔍 Enables smart assessment of [Ground-Truth Energy Consumption](https://arxiv.org/abs/2509.22092)
+- 📈 Integrates with [STREP](https://github.com/raphischer/strep) for resource-versus-quality comparisons
+- 💚 Help to make AI research and the Lamarr Institute more resource-aware
 
 ## 💻 Installation
 
@@ -24,7 +25,7 @@ pip install lamarr-energy-tracker
 
 ## ⚡ Usage
 
-LET should be used for custom compute setups (e.g., desktop, workstation, laptop).
+LET should be used for custom compute setups (e.g., experiments running on a desktop, workstation, laptop).
 If you use the [Lamarr Cluster](https://gitlab.tu-dortmund.de/lamarr/lamarr-public/cluster), your resource consumption will be automatically tracked (more info soon), so you do not need to use LET.
 You can integrate LET in your Python code like this:
 
@@ -90,9 +91,47 @@ print_custom_paper_statement(methodology="the CO2 Impact Calculator", hardware="
 # Using the CO2 Impact Calculator, the energy consumption of running all experiments on an NVIDIA GTX 1080 GPU is estimated to 3.200 kWh.This corresponds to estimated carbon emissions of 1.216 kgCO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}. Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.
 ```
 
-Finally, the comparisons printed in each statement are distilled from [How Bad Are Bananas? The Carbon Footprint of Everything by Mike Berners-Lee](https://greystonebooks.com/products/how-bad-are-bananas). They help gaining a better intuition for carbon intensity and can be funny, but please do not take them at face value. These numbers are very subjective and (to some degree) debatable.   
+Finally, the comparisons printed in each statement are distilled from [How Bad Are Bananas? The Carbon Footprint of Everything by Mike Berners-Lee](https://greystonebooks.com/products/how-bad-are-bananas). They help gaining a better intuition for carbon intensity and can be funny, but please do not take them at face value. These numbers are very subjective and (to some degree) debatable.
 
-## 💡 Multi-Dimensional Model Performance
+## 🔍 Ground-Truth Energy Tracking
+With Smart Sockets like the [Nous A1T](https://nous.technology/product/a1t.html), it is possible to track the [ground-truth energy consumption](https://arxiv.org/abs/2509.22092) of any computer that is powered over a single power socket.
+This repository entails code for ground-truth tracking via a REST API offered from a very simple server (Raspberry Pi 5), which acts as an access point for different smart sockets and connected hosts. 
+
+```python
+# on your SERVER, run via command-line
+python -m lamarr_energy_tracker.ground_truth_tracking --config CONFIG_FILE
+
+# OR Python
+from lamarr_energy_tracker import GroundTruthTrackingServer
+server = GroundTruthTrackingServer(CONFIG_FILE)
+```
+
+The CONFIG_FILE should map host names to smart socket IPs in the local network via JSON syntax, e.g.:
+```json
+{
+  "host1": "127.0.0.1",
+  "host2": "127.0.0.2",
+  "host3": "127.0.0.3",
+  // ...
+}
+```
+
+After launching the server, you can run ground-truth tracking on your machine via
+
+```python
+# on your EXPERIMENT MACHINE, run
+
+from lamarr_energy_tracker import GroundTruthTracker
+
+tracker = GroundTruthTracker(SERVER IP)
+tracker.start()
+# Your resource-heavy code here
+results = tracker.stop()
+```
+
+The results are returned as a dictionery, comprising the `start_time`, `current_time`, `elapsed_time` and `energy_total` in (Watt-)seconds.
+
+## 📈 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.
 For that, you can for example integrate LET / CodeCarbon with [MLflow](https://mlflow.org/) and the [STREP framework](https://github.com/raphischer/strep), allowing you to assemble and explore performance results via csv files---examplary code can be found in the ["Ground-Truthing AI Energy Consumption" repository](https://github.com/raphischer/ai-energy-validation).
 If you need a co-author, struggle to perform these evaluations, or want an expert opinion on your approach, feel free to reach out to [Raphael](mailto:raphael.fischer@tu-dortmund.de).
