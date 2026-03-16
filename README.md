@@ -95,7 +95,8 @@ Finally, the comparisons printed in each statement are distilled from [How Bad A
 
 ## 🔍 Ground-Truth Energy Tracking
 With Smart Sockets like the [Nous A1T](https://nous.technology/product/a1t.html), it is possible to track the [ground-truth energy consumption](https://arxiv.org/abs/2509.22092) of any computer that is powered over a single power socket.
-This repository entails code for ground-truth tracking via a REST API offered from a very simple server (Raspberry Pi 5), which acts as an access point for different smart sockets and connected hosts. 
+This repository entails code for ground-truth tracking via a REST API offered from a simple server (we use a Raspberry Pi 5).
+It acts as an access point for the different smart sockets and connected hosts. 
 
 ```python
 # on your SERVER, run via command-line
@@ -116,20 +117,20 @@ The CONFIG_FILE should map host names to smart socket IPs in the local network v
 }
 ```
 
-After launching the server, you can run ground-truth tracking on your machine via
+After launching the server, you need to store its IP and PORT in the LET_GT_HOST and LET_GT_PORT environment variables or `/home/lamarr/.let/GT_REMOTE_CONFIG` file (just call `python -m lamarr_energy_tracker.ground_truth_tracking --host IP --port PORT` on the client). Once properly configured, you can then perform ground-truth tracking on your machine via
 
 ```python
-# on your EXPERIMENT MACHINE, run
+# on your CLIENT (on which you execute experiments), run
 
 from lamarr_energy_tracker import GroundTruthTracker
 
-tracker = GroundTruthTracker(SERVER IP)
+tracker = GroundTruthTracker()
 tracker.start()
 # Your resource-heavy code here
 results = tracker.stop()
 ```
 
-The results are returned as a dictionery, comprising the `start_time`, `current_time`, `elapsed_time` and `energy_total` in (Watt-)seconds.
+The results will be returned as a dictionery, comprising the `start_time`, `current_time`, `elapsed_time` and `energy_total` in (Watt-)seconds. **TODO: Integrate with statement printing and ~/.let/ storage.**
 
 ## 📈 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.

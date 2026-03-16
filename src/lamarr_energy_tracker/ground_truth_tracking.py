@@ -2,10 +2,13 @@ import argparse
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+import os
+from pathlib import Path
 import requests
 import socket
 
 GT_FMT = "%Y-%m-%dT%H:%M:%S"
+REMOTE_CONFIG_FILE = os.path.join(Path.home(), '.let', 'GT_REMOTE_CONFIG')
 
 def send_tasmota_query(ip, cmd):
     url = f"http://{ip}/cm?cmnd={cmd}"
@@ -140,24 +143,26 @@ class GroundTruthTracker:
         except Exception as e:
             raise RuntimeError(f"Command '{cmd}' failed: {e}")
 
-    def __init__(self, server_host, server_port=8000):
-        """
-        server_host: IP or hostname of the REST server
-        server_port: Port of the REST server
-        """
+    def __init__(self):
 
-        self.server_host = server_host
-        self.server_port = server_port
+        try:
+            self.server_host, self.server_port = os.environ['LET_GT_HOST'], os.environ['LET_GT_PORT']
+        except KeyError:
+            try:
+                with open(REMOTE_CONFIG_FILE, 'r') as cf:
+                    self.server_host, self.server_port = cf.read().split(':')
+            except Exception:
+                raise RuntimeError(f"[GroundTruthTracker] Could not initialize tracking because the remote server host and port information could not be found. Please either set the LET_GT_HOST and LET_GT_PORT environment variables, or call `python -m lamarr_energy_tracker.ground_truth_tracking --host [SERVER-IP] --port [PORT]`")
+                
         # Check availability of local hostname
         self.hostname = socket.gethostname()
         try:
-            if GroundTruthTracker.is_available(server_host, server_port):
+            if GroundTruthTracker.is_available(self.server_host, self.server_port):
                 print(f"[GroundTruthTracker] Tracking for {self.hostname} with A1T Smart Sockets initialized!")
             else:
-                print(f"[GroundTruthTracker] Could not initialize tracking for {self.hostname} because this host is unknown to the A1T server - please check configuration!")
-        except Exception as e:
-            print(f"[GroundTruthTracker] Could not connect to server: {e}")
-            return False
+                raise RuntimeError(f"[GroundTruthTracker] Could not initialize tracking for {self.hostname} because this host is unknown to the A1T server - please check configuration!")
+        except Exception:
+            raise RuntimeError(f"[GroundTruthTracker] Could not connect to server at {self.server_host}:{self.server_port}, please make sure that it was correctly started!")
 
     def start(self):
         """Start tracking for this host"""
@@ -174,9 +179,17 @@ class GroundTruthTracker:
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Perform inference with a model and few batches of data")
-    parser.add_argument("--config", help="JSON configuration file, mapping hostnames to trackable A1T Smart Socket IPs")
+    parser = argparse.ArgumentParser(description="Either starts the server locally using the provided config, or stores the remote server HOST IP and PORT in ~/.let/ for then tracking ground-truth consumption.")
+    parser.add_argument("--config", default=None, help="JSON configuration file, mapping hostnames to trackable A1T Smart Socket IPs")
     parser.add_argument("--host", default='0.0.0.0', help="Host for reaching the REST API")
     parser.add_argument("--port", default=8000, type=int, help="Port for reaching the REST API")
     args = parser.parse_args()
-    server = GroundTruthTrackingServer(args.config, args.host, args.port)
+
+    if args.config:
+        server = GroundTruthTrackingServer(args.config, args.host, args.port)
+
+    else:
+        os.makedirs(os.path.dirname(REMOTE_CONFIG_FILE), exist_ok=True)
+        with open(REMOTE_CONFIG_FILE, 'w') as cf:
+            cf.write(f'{args.host}:{args.port}')
+        print(f'Stored remote tracking HOST {args.host} and PORT {args.port} in {REMOTE_CONFIG_FILE}')

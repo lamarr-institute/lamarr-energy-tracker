@@ -1,7 +1,6 @@
 """
 Main tracker module that wraps CodeCarbon functionality
 """
-import logging
 import os
 from pathlib import Path
 import getpass
@@ -29,7 +28,7 @@ class EnergyTracker:
             output_dir (str, optional): Directory to save the CodeCarbon logs
             country_iso_code (str, optional): ISO code of the country for emissions calculation
             measure_power_secs (float, optional): Interval in float to measure power consumption
-            track_cuda_devices (List, optional): List of cuda devices to track. If empty or None, will use CUDA_VISIBLE_DEVICES
+            cuda_devices (List, optional): List of cuda devices to track. If empty or None, will use CUDA_VISIBLE_DEVICES
         """
         self.project_name = project_name
         if output_dir is None:
