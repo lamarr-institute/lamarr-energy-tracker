@@ -12,6 +12,7 @@ REMOTE_CONFIG_FILE = os.path.join(Path.home(), '.let', 'GT_REMOTE_CONFIG')
 
 def send_tasmota_query(ip, cmd):
     url = f"http://{ip}/cm?cmnd={cmd}"
+    print(f'[GroundTruthTrackingServer] {url}')
     try:
         r = requests.get(url, timeout=5)
         if cmd == 'Status%208':
@@ -71,7 +72,7 @@ class GroundTruthTrackingRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(
-                json.dumps(list(self.server.config.keys()))
+                json.dumps(list(self.server.config.keys())).encode()
             )
             return
 
