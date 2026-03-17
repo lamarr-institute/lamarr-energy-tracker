@@ -46,7 +46,7 @@ tracker.stop()
 
 Once stopped, the tracker will print the energy consumption of your experiment as well as a summary statement that you can copy into your paper, describing the environmental impact of all your performed experiments for the given project and hardware:
 
-***Using CodeCarbon 3.0.8, the energy consumption of running all experiments on an Intel(R) Core(TM) i7-10610U CPU is estimated to 0.135 kWh.
+***Using CodeCarbon 3.2.3, the energy consumption of running all experiments on an Intel(R) Core(TM) i7-10610U CPU is estimated to 0.135 kWh.
 This corresponds to estimated carbon emissions of 0.051 kg of CO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}.
 Note that these numbers are underestimations of actual resource consumption and do not account for overhead factors or embodied impacts~\cite{ai_energy_validation}.***
 
@@ -144,7 +144,8 @@ The results will be returned as a dictionery, comprising the `start_time`, `curr
 
 ## 📈 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.
-For that, you can for example integrate LET / CodeCarbon with [MLflow](https://mlflow.org/) and the [STREP framework](https://github.com/raphischer/strep), allowing you to assemble and explore performance results via csv files---examplary code can be found in the ["Ground-Truthing AI Energy Consumption" repository](https://github.com/raphischer/ai-energy-validation).
+For that, you can for example integrate LET / CodeCarbon with [MLflow](https://mlflow.org/) and the [STREP framework](https://github.com/raphischer/strep), allowing you to assemble and explore performance results via csv files.
+Examplary code can be found in the ["Ground-Truthing AI Energy Consumption" repository](https://github.com/raphischer/ai-energy-validation).
 If you need a co-author, struggle to perform these evaluations, or want an expert opinion on your approach, feel free to reach out to [Raphael](mailto:raphael.fischer@tu-dortmund.de).
 
 <img src="strep_tabulus.png" alt="STREP TABULUS" style="width:50%;" />
@@ -174,12 +175,12 @@ If you use this tool to report your energy consumption, please cite the followin
                Schmidt, Victor and
                Kamal, Goyal and
                others},
-  title     = {mlco2/codecarbon: v3.0.8},
+  title     = {mlco2/codecarbon: v3.2.3},
   year      = 2025,
   publisher = {Zenodo},
-  version   = {v3.0.8},
-  doi       = {10.5281/zenodo.17477894},
-  url       = {https://doi.org/10.5281/zenodo.17477894},
+  version   = {v3.2.3},
+  doi       = {10.5281/zenodo.18731928},
+  url       = {https://doi.org/10.5281/zenodo.18731928},
 }
 ```
 

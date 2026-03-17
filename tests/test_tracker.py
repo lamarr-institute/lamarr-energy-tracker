@@ -109,7 +109,7 @@ class TestPaperStatementOutput(unittest.TestCase):
     
     def test_statement_output_small_emissions_in_g(self):
         """Test that small emissions are displayed in gCO2-equivalents"""
-        output = self._capture_statement_output("CodeCarbon 3.0.8", "Intel CPU", 0.05, "Wh")
+        output = self._capture_statement_output("CodeCarbon", "Intel CPU", 0.05, "Wh")
         self.assertNotIn(" kWh", output, "Default energy unit should not be included")
         self.assertIn("Wh", output, "Custom energy unit should be included")
         self.assertIn("gCO2-equivalents", output, "Small emissions should be in gCO2-equivalents")
@@ -117,13 +117,13 @@ class TestPaperStatementOutput(unittest.TestCase):
     def test_statement_output_contains_carbon_intensity(self):
         """Test that carbon intensity is included in output"""
         carbon_intensity = 450
-        output = self._capture_statement_output("CodeCarbon 3.0.8", "Intel CPU", 0.1, carbon_intensity=carbon_intensity)
+        output = self._capture_statement_output("CodeCarbon", "Intel CPU", 0.1, carbon_intensity=carbon_intensity)
         self.assertIn("450", output, "Carbon intensity not found in output")
         self.assertIn("gCO2/kWh", output, "Carbon intensity unit not found")
     
     def test_statement_output_contains_citations(self):
         """Test that output contains proper citation markers"""
-        output = self._capture_statement_output("CodeCarbon 3.0.8", "Intel CPU", 0.05)
+        output = self._capture_statement_output("CodeCarbon", "Intel CPU", 0.05)
         self.assertIn(r"\cite{lamarr_energy_tracker,codecarbon}", output, "Missing LaTeX citation for lamarr_energy_tracker and codecarbon")
         self.assertIn(r"\cite{ai_energy_validation}", output, "Missing LaTeX citation for ai_energy_validation")
     
