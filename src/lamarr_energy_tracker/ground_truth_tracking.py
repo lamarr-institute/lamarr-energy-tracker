@@ -17,7 +17,7 @@ def send_tasmota_query(ip, cmd):
         if cmd == 'Status%208':
             data = r.json()
             results = {
-                'energy_consumed': data["StatusSNS"]["ENERGY"]["Total"] * 3600, # Wh to Ws
+                'energy_consumed': data["StatusSNS"]["ENERGY"]["Total"] / 1000, # Wh to kWh
                 'start_time': data["StatusSNS"]["ENERGY"]["TotalStartTime"],
                 'timestamp': data["StatusSNS"]["Time"]
             }
@@ -167,13 +167,13 @@ class GroundTruthTracker:
     def start(self):
         """Start tracking for this host"""
         results = GroundTruthTracker.send_command(self.server_host, "start", self.server_port)
-        print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']/3.6e6:7.2f} kWh of tracking!")
+        print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']:7.2f} kWh of tracking!")
         return results
 
     def stop(self):
         """Stop tracking for this host"""
         results = GroundTruthTracker.send_command(self.server_host, "stop", self.server_port)
-        print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} Wattseconds!")
+        print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} kWh!")
         results['tracking_mode'] = 'groundtruth'
         return results
     
