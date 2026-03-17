@@ -97,6 +97,16 @@ Finally, the comparisons printed in each statement are distilled from [How Bad A
 With Smart Sockets like the [Nous A1T](https://nous.technology/product/a1t.html), it is possible to track the [ground-truth energy consumption](https://arxiv.org/abs/2509.22092) of any computer that is powered over a single power socket.
 This repository entails code for ground-truth tracking via a REST API offered from a simple server (we use a Raspberry Pi 5).
 It acts as an access point for the different smart sockets and connected hosts. 
+Make sure to [https://www.youtube.com/watch?v=9M2G2EzEXAk](calibrate) the smart sockets, which we did by connecting a constant power consumer (light bulb) and running the following commands:
+
+```bash
+curl IP/cm?cmnd=SaveData%201 # init
+curl IP/cm?cmnd=VoltageSet%20228 # set to 228 Volt
+curl IP/cm?cmnd=PowerSet%2011 # set to 11 Watt
+curl IP/cm?cmnd=Status%208 # check status / alignment
+```
+
+After that, you can start the API server:
 
 ```python
 # on your SERVER, run via command-line
