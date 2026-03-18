@@ -140,7 +140,7 @@ tracker.start()
 results = tracker.stop()
 ```
 
-The results will be returned as a dictionery, comprising the `start_time`, `current_time`, `elapsed_time` and `energy_total` in (Watt-)seconds. **TODO: Integrate with statement printing and ~/.let/ storage.**
+The results will be returned as a dictionery, comprising the `start_time`, `timestamp`, `duration` (in seconds) and `energy_consumed` (in kilowatthours). **TODO: Integrate with statement printing and ~/.let/ storage.**
 
 ## 📈 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.
