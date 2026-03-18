@@ -144,7 +144,8 @@ class GroundTruthTracker:
         except Exception as e:
             raise RuntimeError(f"Command '{cmd}' failed: {e}")
 
-    def __init__(self):
+    def __init__(self, verbose=True):
+        self.verbose = verbose
 
         try:
             self.server_host, self.server_port = os.environ['LET_GT_HOST'], os.environ['LET_GT_PORT']
@@ -168,13 +169,15 @@ class GroundTruthTracker:
     def start(self):
         """Start tracking for this host"""
         results = GroundTruthTracker.send_command(self.server_host, "start", self.server_port)
-        print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']:7.2f} kWh of tracking!")
+        if self.verbose:
+            print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']:7.2f} kWh of tracking!")
         return results
 
     def stop(self):
         """Stop tracking for this host"""
         results = GroundTruthTracker.send_command(self.server_host, "stop", self.server_port)
-        print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} kWh!")
+        if self.verbose:
+            print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} kWh!")
         results['tracking_mode'] = 'groundtruth'
         return results
     
