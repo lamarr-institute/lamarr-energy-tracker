@@ -18,7 +18,7 @@ def send_tasmota_query(ip, cmd):
         if cmd == 'Status%208':
             data = r.json()
             results = {
-                'energy_consumed': data["StatusSNS"]["ENERGY"]["Total"] / 1000, # Wh to kWh
+                'energy_consumed': data["StatusSNS"]["ENERGY"]["Total"], # kWh
                 'start_time': data["StatusSNS"]["ENERGY"]["TotalStartTime"],
                 'timestamp': data["StatusSNS"]["Time"]
             }
