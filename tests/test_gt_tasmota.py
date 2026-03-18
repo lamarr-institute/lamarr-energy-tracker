@@ -29,7 +29,7 @@ def test_send_tasmota_query_parses_response(mock_get):
 
     result = send_tasmota_query("1.2.3.4", "Status%208")
 
-    assert result["energy_consumed"] == 1.5 / 1000
+    assert result["energy_consumed"] == 1.5
     assert result["duration"] == 3600
     assert result["start_time"] == "2024-01-01T00:00:00"
 
