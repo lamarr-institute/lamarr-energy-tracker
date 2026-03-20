@@ -4,7 +4,7 @@
     <img src="logo.png" alt="Lamarr Energy Tracker logo" style="width:100px; height:auto; display:block;" />
   </div>
   <div style="flex:1; min-width:240px;">
-A simple wrapper around <a href="https://mlco2.github.io/codecarbon/motivation.html">CodeCarbon</a> for tracking and reporting local energy consumption from Python.
+A simple wrapper around <a href="https://docs.codecarbon.io/latest/">CodeCarbon</a> for tracking and reporting local energy consumption from Python.
   </div>
 </div>
 
@@ -75,7 +75,7 @@ As mentioned in the impact statement above, the information obtained by CodeCarb
 The tracking works especially well for NVIDIA GPUs (via NVML) and Linux setups, however dynamic CPU profiling with RAPL requires to run all code with `sudo`.
 If you want to run code without `sudo`, you can also run our [RAPL access rights script](./scripts/rapl_access.sh) before executing your code.
 
-While the tracker assumes that all code is executed in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json), among some other arguments. For more information on the methodology and shortcomings of the tracker, please refer to the [CodeCarbon documentation](https://mlco2.github.io/codecarbon/motivation.html).
+While the tracker assumes that all code is executed in Germany, you can also provide a different `country_iso_code` to change the [carbon intensity constant](https://github.com/mlco2/codecarbon/blob/master/codecarbon/data/private_infra/global_energy_mix.json), among some other arguments. For more information on the methodology and shortcomings of the tracker, please refer to the [CodeCarbon documentation](https://docs.codecarbon.io/latest/).
 
 If you use some other energy estimation approach, such as the static [Machine Learning CO2 Impact Calculator](https://mlco2.github.io/impact/) or custom profiling software like [jetson-stats](https://github.com/rbonghi/jetson_stats) (for NVIDIA Jetson [Thor, Orin, Xavier, Nano, TX] series), you can also use LET to print out a custom impact statement, based on the provided `methodology`, `hardware` and `energy consumption`:
 
