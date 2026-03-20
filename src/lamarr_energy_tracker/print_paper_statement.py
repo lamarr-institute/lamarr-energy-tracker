@@ -183,7 +183,7 @@ if __name__ == "__main__":
     parser.add_argument("--project_name", type=str, default=None, help="Name of the project")
     parser.add_argument("--user", type=str, default=None, help="User name")
     parser.add_argument("--hostname", type=str, default=None, help="Hostname")
-    parser.add_argument("--methodology", type=str, default=None, help="Methodology for energy estimation (e.g., CodeCarbon 3.0.8 or ML Impact Calculator)")
+    parser.add_argument("--methodology", type=str, default=None, help="Methodology for energy estimation (e.g., CodeCarbon or ML Impact Calculator)")
     parser.add_argument("--hardware", type=str, default=None, help="Information on experiment hardware (e.g., CPU or GPU type)")
     parser.add_argument("--consumed_energy", type=float, default=None, help="Information on consumed energy (in kWh)")
     parser.add_argument("--carbon_intensity", type=int, default=380, help="Information on carbon intensity (in gCO2/kWh)")
