@@ -80,7 +80,7 @@ class EnergyTracker:
         output = {'timestamp': datetime.strptime(result['timestamp'], "%Y-%m-%dT%H:%M:%S")}
         for key in ['energy_consumed', 'duration']:
             output[key] = result[key]
-        output['start_time'] = result['timestamp'] - timedelta(seconds=result['duration'])
+        output['start_time'] = output['timestamp'] - timedelta(seconds=result['duration'])
         return output
     
     @property
