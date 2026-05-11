@@ -6,6 +6,7 @@ from pathlib import Path
 import getpass
 import platform
 from typing import List, Optional
+from datetime import timedelta, datetime
 
 from codecarbon import OfflineEmissionsTracker
 from codecarbon.external.logger import set_logger_level
@@ -76,7 +77,11 @@ class EnergyTracker:
             _, _, en, _ = format_summary(pd.DataFrame([result]))
             print(f"\nTracker stopped - this experiment consumed {en}.\n")
             print_paper_statement(output_dir=self.tracker._output_dir, project_name=self.project_name, user=self.user, hostname=self.hostname)
-        return result['energy_consumed'], result['duration']
+        output = {'timestamp': datetime.strptime(result['timestamp'], "%Y-%m-%dT%H:%M:%S")}
+        for key in ['energy_consumed', 'duration']:
+            output[key] = result[key]
+        output['start_time'] = result['timestamp'] - timedelta(seconds=result['duration'])
+        return output
     
     @property
     def results(self):
