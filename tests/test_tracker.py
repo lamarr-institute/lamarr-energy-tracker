@@ -83,7 +83,7 @@ class TestEnergyTracker(unittest.TestCase):
         self.assertGreaterEqual(results['duration'], 0, "Duration should be non-negative")
         self.assertIsInstance(results['timestamp'], datetime.datetime, "Timestamp should be a datetime object")
         self.assertIsInstance(results['start_time'], datetime.datetime, "Start time should be a datetime object")
-        self.assertEqual(results['tracking_mode'], 'codecarbon', "Tracking mode should be 'codecarbon'")
+        self.assertEqual(results['tracking_mode'], 'CodeCarbon', "Tracking mode should be 'codecarbon'")
 
 
 class TestPaperStatementOutput(unittest.TestCase):

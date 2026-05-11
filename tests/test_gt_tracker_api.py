@@ -84,4 +84,4 @@ def test_stop_return_format(mock_send_command, mock_available, mock_hostname):
     # check start_time data
     assert isinstance(results['start_time'], datetime), "Start time should be a datetime object"
     # check tracking_mode
-    assert results['tracking_mode'] == 'groundtruth', "Tracking mode should be 'groundtruth'"
+    assert results['tracking_mode'] == 'Ground-Truth', "Tracking mode should be 'groundtruth'"
