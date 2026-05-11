@@ -77,7 +77,7 @@ class EnergyTracker:
             _, _, en, _ = format_summary(pd.DataFrame([result]))
             print(f"\nTracker stopped - this experiment consumed {en}.\n")
             print_paper_statement(output_dir=self.tracker._output_dir, project_name=self.project_name, user=self.user, hostname=self.hostname)
-        output = {'timestamp': datetime.strptime(result['timestamp'], "%Y-%m-%dT%H:%M:%S")}
+        output = {'timestamp': datetime.strptime(result['timestamp'], "%Y-%m-%dT%H:%M:%S"), 'tracking_mode': 'codecarbon'}
         for key in ['energy_consumed', 'duration']:
             output[key] = result[key]
         output['start_time'] = output['timestamp'] - timedelta(seconds=result['duration'])

@@ -187,7 +187,7 @@ class GroundTruthTracker:
     def stop(self):
         """Stop tracking for this host"""
         if not self.non_available_crash:
-            return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1}
+            return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1, 'tracking_mode': 'groundtruth'}
         results = GroundTruthTracker.send_command(self.server_host, "stop", self.server_port)
         if self.verbose:
             print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} kWh!")

@@ -77,16 +77,13 @@ class TestEnergyTracker(unittest.TestCase):
         _ = [i**2 for i in range(10000)]
         results = tracker.stop()
         self.assertIsInstance(results, dict, "Stop should return a dictionary")
-        # check energy data
         self.assertIsInstance(results['energy_consumed'], float, "Energy should be a float")
         self.assertGreaterEqual(results['energy_consumed'], 0, "Energy should be non-negative")
-        # check duration data
         self.assertIsInstance(results['duration'], float, "Duration should be a float")
         self.assertGreaterEqual(results['duration'], 0, "Duration should be non-negative")
-        # check timestamp data
         self.assertIsInstance(results['timestamp'], datetime.datetime, "Timestamp should be a datetime object")
-        # check start_time data
         self.assertIsInstance(results['start_time'], datetime.datetime, "Start time should be a datetime object")
+        self.assertEqual(results['tracking_mode'], 'codecarbon', "Tracking mode should be 'codecarbon'")
 
 
 class TestPaperStatementOutput(unittest.TestCase):
