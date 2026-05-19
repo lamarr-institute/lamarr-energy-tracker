@@ -37,7 +37,7 @@ def test_tracker_init_non_available_no_crash(mock_available, mock_hostname):
     
     # Test stop() returns dummy values with tracking_mode
     stop_result = tracker.stop()
-    expected_stop = {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1, 'tracking_mode': 'Ground-Truth'}
+    expected_stop = {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1, 'tracking_mode': 'GroundTruth'}
     assert stop_result == expected_stop
 
 
