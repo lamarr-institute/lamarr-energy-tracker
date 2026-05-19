@@ -144,9 +144,9 @@ class GroundTruthTracker:
         except Exception as e:
             raise RuntimeError(f"Command '{cmd}' failed: {e}")
 
-    def __init__(self, non_available_crash=True, verbose=True):
+    def __init__(self, crash_if_unavailable=True, verbose=True):
         self.verbose = verbose
-        self.non_available_crash = non_available_crash
+        self.crash_if_unavailable = crash_if_unavailable
         try:
 
             try:
@@ -168,17 +168,17 @@ class GroundTruthTracker:
             except Exception:
                 raise RuntimeError(f"[GroundTruthTracker] Could not connect to server at {self.server_host}:{self.server_port}, please make sure that it was correctly started!")
         except Exception as e:
-            if self.non_available_crash:
+            if self.crash_if_unavailable:
                 raise e
             else:
                 print(f"[GroundTruthTracker] Warning: {e}")
-                print(f"[GroundTruthTracker] Tracking will be disabled.")
+                print(f"[GroundTruthTracker] Tracker can be used but tracking will be disabled.")
                 self.server_host, self.server_port = None, None
 
     def start(self):
         """Start tracking for this host"""
-        if not self.non_available_crash:
-            return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1}
+        if self.server_host is None and not self.crash_if_unavailable:
+            return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1, 'tracking_mode': 'GroundTruth'}
         results = GroundTruthTracker.send_command(self.server_host, "start", self.server_port)
         if self.verbose:
             print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']:7.2f} kWh of tracking!")
@@ -186,16 +186,13 @@ class GroundTruthTracker:
 
     def stop(self):
         """Stop tracking for this host"""
-        if not self.non_available_crash:
+        if self.server_host is None and not self.crash_if_unavailable:
             return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1, 'tracking_mode': 'GroundTruth'}
         results = GroundTruthTracker.send_command(self.server_host, "stop", self.server_port)
         if self.verbose:
             print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} kWh!")
         results['tracking_mode'] = 'GroundTruth'
         return results
-    
-
-
     # timestamp,project_name,run_id,experiment_id,duration,emissions,emissions_rate,cpu_power,gpu_power,ram_power,cpu_energy,gpu_energy,ram_energy,energy_consumed,water_consumed,country_name,country_iso_code,region,cloud_provider,cloud_region,os,python_version,codecarbon_version,cpu_count,cpu_model,gpu_count,gpu_model,longitude,latitude,ram_total_size,tracking_mode,on_cloud,pue,wue
 
 
