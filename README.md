@@ -41,10 +41,11 @@ with EnergyTracker(project_name="your_research_project") as tracker:
 tracker = EnergyTracker(project_name="your_research_project")
 tracker.start()
 # Your resource-heavy code here
-tracker.stop()
+results = tracker.stop()
 ```
 
-Once stopped, the tracker will print the energy consumption of your experiment as well as a summary statement that you can copy into your paper, describing the environmental impact of all your performed experiments for the given project and hardware:
+The results will be returned as a dictionery, comprising the `start_time`, `timestamp`, `duration` (in seconds) and `energy_consumed` (in kilowatthours), as well as tracking mode.
+Moreover, a summary statement will be printed that can be directly copied to your paper, describing the environmental impact of all your performed experiments for the given project and hardware:
 
 ***Using CodeCarbon 3.2.3, the energy consumption of running all experiments on an Intel(R) Core(TM) i7-10610U CPU is estimated to 0.135 kWh.
 This corresponds to estimated carbon emissions of 0.051 kg of CO2-equivalents, assuming a carbon intensity of 380 gCO2/kWh~\cite{lamarr_energy_tracker,codecarbon}.
@@ -95,8 +96,21 @@ Finally, the comparisons printed in each statement are distilled from [How Bad A
 
 ## 🔍 Ground-Truth Energy Tracking
 With Smart Sockets like the [Nous A1T](https://nous.technology/product/a1t.html), it is possible to track the [ground-truth energy consumption](https://arxiv.org/abs/2509.22092) of any computer that is powered over a single power socket.
-This repository entails code for ground-truth tracking via a REST API offered from a simple server (we use a Raspberry Pi 5).
-It acts as an access point for the different smart sockets and connected hosts. 
+This repository enables ground-truth tracking via a REST API offered from a simple server.
+You need to store its IP and PORT in the LET_GT_HOST and LET_GT_PORT environment variables or `/home/lamarr/.let/GT_REMOTE_CONFIG` file (just call `python -m lamarr_energy_tracker.ground_truth_tracking --host IP --port PORT` on the client, reach out to Sebastian for the IP and PORT information).
+Once properly configured, you can then perform ground-truth tracking on your machine via
+
+```python
+# on your CLIENT (on which you execute experiments), run
+from lamarr_energy_tracker import GroundTruthTracker
+
+tracker = GroundTruthTracker()
+tracker.start()
+# Your resource-heavy code here
+results = tracker.stop() # TODO: Integrate with ~/.let/ storage and statement printing!
+```
+
+If you want to set up a similar environment for your own hardware hosts, you can use a Raspberry Pi 5 or similar that acts as an access point for the different smart sockets and connected hosts. 
 Make sure to [https://www.youtube.com/watch?v=9M2G2EzEXAk](calibrate) the smart sockets, which we did by connecting a constant power consumer (light bulb) and running the following commands:
 
 ```bash
@@ -106,7 +120,7 @@ curl IP/cm?cmnd=PowerSet%2011 # set to 11 Watt
 curl IP/cm?cmnd=Status%208 # check status / alignment
 ```
 
-After that, you can start the API server:
+After that, you can start the API on the server:
 
 ```python
 # on your SERVER, run via command-line
@@ -126,21 +140,6 @@ The CONFIG_FILE should map host names to smart socket IPs in the local network v
   // ...
 }
 ```
-
-After launching the server, you need to store its IP and PORT in the LET_GT_HOST and LET_GT_PORT environment variables or `/home/lamarr/.let/GT_REMOTE_CONFIG` file (just call `python -m lamarr_energy_tracker.ground_truth_tracking --host IP --port PORT` on the client). Once properly configured, you can then perform ground-truth tracking on your machine via
-
-```python
-# on your CLIENT (on which you execute experiments), run
-
-from lamarr_energy_tracker import GroundTruthTracker
-
-tracker = GroundTruthTracker()
-tracker.start()
-# Your resource-heavy code here
-results = tracker.stop()
-```
-
-The results will be returned as a dictionery, comprising the `start_time`, `timestamp`, `duration` (in seconds) and `energy_consumed` (in kilowatthours). **TODO: Integrate with statement printing and ~/.let/ storage.**
 
 ## 📈 Multi-Dimensional Model Performance
 You can also use LET to investigate the multi-dimensional performance of AI models, by benchmarking resource consumption and predictive quality.

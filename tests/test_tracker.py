@@ -7,6 +7,7 @@ import pandas as pd
 import socket
 import getpass
 from io import StringIO
+import datetime
 import sys
 from lamarr_energy_tracker import EnergyTracker
 from lamarr_energy_tracker.print_paper_statement import emission_comparisons, print_custom_paper_statement
@@ -74,16 +75,15 @@ class TestEnergyTracker(unittest.TestCase):
         tracker.start()
         # Do some computation to ensure measurable energy consumption
         _ = [i**2 for i in range(10000)]
-        energy, duration = tracker.stop()
-        
-        # Check if energy is a float
-        self.assertIsInstance(energy, float, "Energy should be a float")
-        # Check if energy is non-negative
-        self.assertGreaterEqual(energy, 0, "Energy should be non-negative")
-        # Check if duration is a float
-        self.assertIsInstance(duration, float, "Duration should be a float")
-        # Check if duration is non-negative
-        self.assertGreaterEqual(duration, 0, "Duration should be non-negative")
+        results = tracker.stop()
+        self.assertIsInstance(results, dict, "Stop should return a dictionary")
+        self.assertIsInstance(results['energy_consumed'], float, "Energy should be a float")
+        self.assertGreaterEqual(results['energy_consumed'], 0, "Energy should be non-negative")
+        self.assertIsInstance(results['duration'], float, "Duration should be a float")
+        self.assertGreaterEqual(results['duration'], 0, "Duration should be non-negative")
+        self.assertIsInstance(results['timestamp'], datetime.datetime, "Timestamp should be a datetime object")
+        self.assertIsInstance(results['start_time'], datetime.datetime, "Start time should be a datetime object")
+        self.assertEqual(results['tracking_mode'], 'CodeCarbon', "Tracking mode should be 'codecarbon'")
 
 
 class TestPaperStatementOutput(unittest.TestCase):

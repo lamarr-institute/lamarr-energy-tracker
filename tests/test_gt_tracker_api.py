@@ -51,3 +51,37 @@ def test_send_command_parses_datetime(mock_available, mock_get, mock_hostname):
 
     assert isinstance(result["start_time"], datetime)
     assert result["duration"] == 3600
+
+
+@patch.dict("os.environ", {"LET_GT_HOST": "localhost", "LET_GT_PORT": "8000"})
+@patch("socket.gethostname", return_value="host1")
+@patch("lamarr_energy_tracker.ground_truth_tracking.GroundTruthTracker.is_available")
+@patch("lamarr_energy_tracker.ground_truth_tracking.GroundTruthTracker.send_command")
+def test_stop_return_format(mock_send_command, mock_available, mock_hostname):
+    """Test if stop() returns properly formatted emissions data"""
+    mock_available.return_value = True
+    
+    # Mock the send_command return value
+    mock_send_command.return_value = {
+        'energy_consumed': 0.123,
+        'start_time': datetime(2024, 1, 1, 0, 0, 0),
+        'timestamp': datetime(2024, 1, 1, 1, 0, 0),
+        'duration': 3600.0
+    }
+    
+    tracker = GroundTruthTracker()
+    results = tracker.stop()
+    
+    assert isinstance(results, dict), "Stop should return a dictionary"
+    # check energy data
+    assert isinstance(results['energy_consumed'], float), "Energy should be a float"
+    assert results['energy_consumed'] >= 0, "Energy should be non-negative"
+    # check duration data
+    assert isinstance(results['duration'], float), "Duration should be a float"
+    assert results['duration'] >= 0, "Duration should be non-negative"
+    # check timestamp data
+    assert isinstance(results['timestamp'], datetime), "Timestamp should be a datetime object"
+    # check start_time data
+    assert isinstance(results['start_time'], datetime), "Start time should be a datetime object"
+    # check tracking_mode
+    assert results['tracking_mode'] == 'GroundTruth', "Tracking mode should be 'groundtruth'"

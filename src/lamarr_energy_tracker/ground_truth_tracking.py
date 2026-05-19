@@ -144,30 +144,41 @@ class GroundTruthTracker:
         except Exception as e:
             raise RuntimeError(f"Command '{cmd}' failed: {e}")
 
-    def __init__(self, verbose=True):
+    def __init__(self, non_available_crash=True, verbose=True):
         self.verbose = verbose
+        self.non_available_crash = non_available_crash
+        try:
 
-        try:
-            self.server_host, self.server_port = os.environ['LET_GT_HOST'], os.environ['LET_GT_PORT']
-        except KeyError:
             try:
-                with open(REMOTE_CONFIG_FILE, 'r') as cf:
-                    self.server_host, self.server_port = cf.read().split(':')
+                self.server_host, self.server_port = os.environ['LET_GT_HOST'], os.environ['LET_GT_PORT']
+            except KeyError:
+                try:
+                    with open(REMOTE_CONFIG_FILE, 'r') as cf:
+                        self.server_host, self.server_port = cf.read().split(':')
+                except Exception:
+                    raise RuntimeError(f"[GroundTruthTracker] Could not initialize tracking because the remote server host and port information could not be found. Please either set the LET_GT_HOST and LET_GT_PORT environment variables, or call `python -m lamarr_energy_tracker.ground_truth_tracking --host [SERVER-IP] --port [PORT]`")
+                    
+            # Check availability of local hostname
+            self.hostname = socket.gethostname()
+            try:
+                if GroundTruthTracker.is_available(self.server_host, self.server_port):
+                    print(f"[GroundTruthTracker] Tracking for {self.hostname} with A1T Smart Sockets initialized!")
+                else:
+                    raise RuntimeError(f"[GroundTruthTracker] Could not initialize tracking for {self.hostname} because this host is unknown to the A1T server - please check configuration!")
             except Exception:
-                raise RuntimeError(f"[GroundTruthTracker] Could not initialize tracking because the remote server host and port information could not be found. Please either set the LET_GT_HOST and LET_GT_PORT environment variables, or call `python -m lamarr_energy_tracker.ground_truth_tracking --host [SERVER-IP] --port [PORT]`")
-                
-        # Check availability of local hostname
-        self.hostname = socket.gethostname()
-        try:
-            if GroundTruthTracker.is_available(self.server_host, self.server_port):
-                print(f"[GroundTruthTracker] Tracking for {self.hostname} with A1T Smart Sockets initialized!")
+                raise RuntimeError(f"[GroundTruthTracker] Could not connect to server at {self.server_host}:{self.server_port}, please make sure that it was correctly started!")
+        except Exception as e:
+            if self.non_available_crash:
+                raise e
             else:
-                raise RuntimeError(f"[GroundTruthTracker] Could not initialize tracking for {self.hostname} because this host is unknown to the A1T server - please check configuration!")
-        except Exception:
-            raise RuntimeError(f"[GroundTruthTracker] Could not connect to server at {self.server_host}:{self.server_port}, please make sure that it was correctly started!")
+                print(f"[GroundTruthTracker] Warning: {e}")
+                print(f"[GroundTruthTracker] Tracking will be disabled.")
+                self.server_host, self.server_port = None, None
 
     def start(self):
         """Start tracking for this host"""
+        if not self.non_available_crash:
+            return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1}
         results = GroundTruthTracker.send_command(self.server_host, "start", self.server_port)
         if self.verbose:
             print(f"[GroundTruthTracker] Restarted tracking on {datetime.strftime(results['timestamp'], GT_FMT)}, after {results['duration']/3600:7.2f} hours and {results['energy_consumed']:7.2f} kWh of tracking!")
@@ -175,10 +186,12 @@ class GroundTruthTracker:
 
     def stop(self):
         """Stop tracking for this host"""
+        if not self.non_available_crash:
+            return {'energy_consumed': -1, 'start_time': None, 'timestamp': None, 'duration': -1, 'tracking_mode': 'GroundTruth'}
         results = GroundTruthTracker.send_command(self.server_host, "stop", self.server_port)
         if self.verbose:
             print(f"[GroundTruthTracker] Tracking after {results['duration']/60:7.2f} minutes standing at {results['energy_consumed']:12.5f} kWh!")
-        results['tracking_mode'] = 'groundtruth'
+        results['tracking_mode'] = 'GroundTruth'
         return results
     
 

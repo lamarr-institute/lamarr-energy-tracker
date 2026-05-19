@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="lamarr-energy-tracker",
-    version="0.1.2",
+    version="0.1.3",
     author="Resource-aware ML Research Team @ Lamarr Institute",
     author_email="sebastian.buschjaeger@tu-dortmund.de",
     description="A CodeCarbon wrapper for tracking and reporting energy consumption of ML experiments",
@@ -24,6 +24,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     python_requires=">=3.8",
     install_requires=[
