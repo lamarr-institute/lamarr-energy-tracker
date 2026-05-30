@@ -111,7 +111,7 @@ results = tracker.stop() # TODO: Integrate with ~/.let/ storage and statement pr
 ```
 
 If you want to set up a similar environment for your own hardware hosts, you can use a Raspberry Pi 5 or similar that acts as an access point for the different smart sockets and connected hosts. 
-Make sure to [https://www.youtube.com/watch?v=9M2G2EzEXAk](calibrate) the smart sockets, which we did by connecting a constant power consumer (light bulb) and running the following commands:
+Make sure to [calibrate](https://www.youtube.com/watch?v=9M2G2EzEXAk) the smart sockets, which we did by connecting a constant power consumer (light bulb) and running the following commands:
 
 ```bash
 curl IP/cm?cmnd=SaveData%201 # init
